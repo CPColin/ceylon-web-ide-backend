@@ -9,14 +9,16 @@
  ********************************************************************************/
 native("jvm") 
 module com.redhat.ceylon.ide.web "1.0.0" {
-    import ceylon.uri "1.3.3-SNAPSHOT";
-    import ceylon.http.client "1.3.3-SNAPSHOT";
-    import ceylon.http.server "1.3.3-SNAPSHOT";
-    import ceylon.buffer "1.3.3-SNAPSHOT";
-    import ceylon.json "1.3.3-SNAPSHOT";
-    import ceylon.time "1.3.3-SNAPSHOT";
-    import ceylon.interop.java "1.3.3-SNAPSHOT";
-    import com.redhat.ceylon.typechecker "1.3.3-SNAPSHOT";
-    import com.redhat.ceylon.compiler.js "1.3.3-SNAPSHOT";
+    value ceylonVersion = "1.3.3";
+    
+    import ceylon.uri ceylonVersion;
+    import ceylon.http.client ceylonVersion;
+    import ceylon.http.server ceylonVersion;
+    import ceylon.buffer ceylonVersion;
+    import ceylon.json ceylonVersion;
+    import ceylon.time ceylonVersion;
+    import ceylon.interop.java ceylonVersion;
+    import com.redhat.ceylon.typechecker ceylonVersion;
+    import com.redhat.ceylon.compiler.js ceylonVersion;
     import com.github.rjeschke.txtmark "0.13";
 }
