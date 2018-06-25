@@ -13,14 +13,17 @@ import ceylon.interop.java {
 import ceylon.json {
     JsonObject=Object
 }
-
-import com.github.rjeschke.txtmark {
-    Configuration,
-    SpanEmitter,
-    Processor {
-        process
-    }
+import ceylon.markdown.parser {
+    Node,
+    NodeType,
+    ParseOptions,
+    Parser,
+    transformSpecialLinks
 }
+import ceylon.markdown.renderer {
+    RawHtmlRenderer
+}
+
 import com.redhat.ceylon.model.typechecker.model {
     Declaration,
     ClassOrInterface,
@@ -38,10 +41,6 @@ import com.redhat.ceylon.model.typechecker.model {
     Functional
 }
 
-import java.lang {
-    JSB=StringBuilder
-}
-
 String keyword = "<span class='cm-keyword'>";
 String variableId = "<span class='cm-variable'>";
 String typeId = "<span class='cm-variable-3'>";
@@ -49,26 +48,6 @@ String annotationId = "<span class='cm-annotation'>";
 String end = "</span>";
 String code = "<code class='cm-s-ceylon'>";
 String endCode = "</code>";
-
-object spanEmitter satisfies SpanEmitter {
-    shared actual void emitSpan(JSB result, String content) {
-        if (exists bar = content.firstOccurrence('|')) {
-            result.append(content[0:bar]);
-        }
-        else {
-            result.append("<code>")
-                  .append(content)
-                  .append("</code>");
-        }
-    }
-}
-
-Configuration markdownConfig 
-        = Configuration.builder()
-        .forceExtentedProfile()
-        .setEncoding("UTF-8")
-        .setSpecialLinkEmitter(spanEmitter)
-        .build();
 
 JsonObject getDocs(Declaration? declaration) {
     value json = JsonObject();
@@ -101,6 +80,35 @@ String unquote(String doc) {
     }
 }
 
+String processMarkdown(String markdown) {
+    value parseOptions = ParseOptions {
+        smart = true;
+        specialLinks = true;
+    };
+    value parser = Parser(parseOptions);
+    value root = parser.parse(unquote(markdown));
+    
+    transformSpecialLinks(root, function(String content) {
+        if (exists bar = content.firstOccurrence('|')) {
+            value node = Node(NodeType.code);
+            
+            node.literal = content[0:bar];
+            
+            return node;
+        } else {
+            value node = Node(NodeType.code);
+            
+            node.literal = content;
+            
+            return node;
+        }
+    });
+    
+    value renderer = RawHtmlRenderer();
+    
+    return renderer.render(root);
+}
+
 String getDoc(Declaration? declaration) {
     if (!exists declaration) {
         return "";
@@ -110,7 +118,7 @@ String getDoc(Declaration? declaration) {
         if ("doc" == ann.name 
                 && !ann.positionalArguments.empty) {
             value doc = ann.positionalArguments.get(0).string;
-            result.append(process(unquote(doc), markdownConfig));
+            result.append(processMarkdown(doc));
             break;
         }
     }
@@ -368,7 +376,7 @@ String getParameterInfo(Declaration declaration) {
             if (positionalArguments.size()>1) {
                 value doc = positionalArguments.get(1).string;
                 result.append("<p>")
-                      .append(process(unquote(doc), markdownConfig))
+                      .append(processMarkdown(doc))
                       .append("</p>");
             }
             result.append("</ul>");

@@ -18,7 +18,7 @@ module com.redhat.ceylon.ide.web "1.0.0" {
     import ceylon.json ceylonVersion;
     import ceylon.time ceylonVersion;
     import ceylon.interop.java ceylonVersion;
+    import ceylon.markdown "1.1.0";
     import com.redhat.ceylon.typechecker ceylonVersion;
     import com.redhat.ceylon.compiler.js ceylonVersion;
-    import com.github.rjeschke.txtmark "0.13";
 }
