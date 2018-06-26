@@ -89,19 +89,15 @@ String processMarkdown(String markdown) {
     value root = parser.parse(unquote(markdown));
     
     transformSpecialLinks(root, function(String content) {
+        value node = Node(NodeType.code);
+        
         if (exists bar = content.firstOccurrence('|')) {
-            value node = Node(NodeType.code);
-            
             node.literal = content[0:bar];
-            
-            return node;
         } else {
-            value node = Node(NodeType.code);
-            
             node.literal = content;
-            
-            return node;
         }
+        
+        return node;
     });
     
     value renderer = RawHtmlRenderer();
